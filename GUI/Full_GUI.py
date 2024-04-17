@@ -12,6 +12,7 @@ from PyQt5.QtGui import QDesktopServices, QFont
 from PyQt5.QtCore import QUrl, QTimer, QTime, Qt
 from PyQt5.uic import loadUi
 from datetime import datetime
+from picamera2 import Picamera2, Preview
 
 
 # Serial port configuration
@@ -58,14 +59,18 @@ class InfoScreen(QMainWindow):
     def __init__(self):
         super(InfoScreen,self).__init__()
         loadUi("PyQt/infoScreen.ui",self)
-        ########## Time ########
+        ############## Time ##############
         self.lcd = self.findChild(QLCDNumber, "lcdTime")
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.showTime)
         self. timer.start(1000) 
         self.showTime()
         self.show()
-        ########## Parking Mode ########
+        self.picam2 = Picamera2()
+        self.picam2.start_preview(Preview.QTGL)
+        self.picam2.configure(preview_config)
+
+        ########## Parking Mode ##########
         self.ParkingButton.clicked.connect(self.gotoParkingMode)
 
         ########## System Updates ########
@@ -86,7 +91,8 @@ class InfoScreen(QMainWindow):
                 QMessageBox.warning(self, "Warning", "Obstacle detected in", ultrasonic_reading ,"cm away!" "Please be cautious.")
                 GPIO.output(warningLED, GPIO.HIGH)
             else:
-                print("open camera and warnings")
+                print("opening camera")
+                self.picam2.start()
 
         else:
             QMessageBox.warning(self, "NOT FOUND ", "Parking Mode not accessible.")
@@ -227,7 +233,7 @@ class NoUpdate(QDialog):
 class CreateAcc(QDialog):
     def __init__(self):
         super(CreateAcc,self).__init__()
-        loadUi("PyQt/CreateAcc.ui",self)
+        loadUi("PyQt/createAcc.ui",self)
         self.signupButton.clicked.connect(self.CreateAccFun)
         self.password.setEchoMode(QtWidgets.QLineEdit.Password)
         self.confirmpass.setEchoMode(QtWidgets.QLineEdit.Password)
