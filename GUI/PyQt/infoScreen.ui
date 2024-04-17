@@ -39,13 +39,16 @@
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">color: white; background-color: rgb(0, 85, 255); border-radius: 10px; font-size: 24px;</string>
+     <string notr="true">
+QPushButton { color: white; background-color: rgb(0, 85, 255); border-radius: 10px; font-size: 24px; }
+QPushButton:hover { background-color: rgb(0, 0, 200); }
+QPushButton:pressed { background-color: rgb(0, 0, 150); }</string>
     </property>
     <property name="text">
      <string>Check for Updates</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton">
+   <widget class="QPushButton" name="ParkingButton">
     <property name="geometry">
      <rect>
       <x>10</x>
