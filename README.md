@@ -16,9 +16,9 @@ The Over-The-Air Programmer (OTA) project enables wireless flashing of firmware 
 
 ### Communication Channels
 
-- **STM32F103 - NodeMCU Communication**: The STM32F401 microcontroller communicates with the NodeMCU board over UART (Serial) communication. This allows the microcontroller to receive firmware updates wirelessly.
+- **STM32F401  - NodeMCU Communication**: The STM32F401 microcontroller communicates with the NodeMCU board over UART (Serial) communication. This allows the microcontroller to receive firmware updates wirelessly.
 
-- **Raspberry Pi 4 - STM32F401 Communication**: The Raspberry Pi 4 communicates with the STM32F103 microcontroller via UART (Serial) communication. This communication channel facilitates the control of the infotainment system and the installation of firmware updates.
+- **Raspberry Pi 4 - STM32F401 Communication**: The Raspberry Pi 4 communicates with the STM32F401  microcontroller via UART (Serial) communication. This communication channel facilitates the control of the infotainment system and the installation of firmware updates.
 
 ### Key Features
 
