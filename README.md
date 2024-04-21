@@ -27,7 +27,7 @@ The Over-The-Air Programmer (OTA) project enables wireless flashing of firmware 
 - **Automatic System Updates**: The Raspberry Pi 4 GUI interface includes a "Check for Updates" feature. When activated, the system automatically fetches the latest firmware updates from the cloud database and installs them onto the STM32F401 microcontroller.
 
 - **Enhanced Infotainment Features**: After installing system updates, the infotainment system unlocks additional features, such as a parking mode. This mode includes functionalities such as a rear camera display and ultrasonic sensor warnings to assist users in parking and avoid accidents.
-- 
+
 ## Setup and Configuration
 
 To set up and deploy the Over-The-Air Programmer (OTA) system, follow these steps:
