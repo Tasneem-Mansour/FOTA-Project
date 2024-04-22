@@ -46,7 +46,7 @@ while True:
 
         break
 
-    metadata = picam2.capture_file("captures/microscope-"+time.strftime("%Y%m%d-%H%M%S")+".jpg")
+    metadata = picam2.capture_file("/home/pi/fota_f/FOTA_Project/GUI/Test_Codes"+time.strftime("%Y%m%d-%H%M%S")+".jpg")
     print(metadata)
     picam2.close()
 

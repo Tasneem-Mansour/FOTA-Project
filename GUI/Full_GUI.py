@@ -55,6 +55,9 @@ firebase=pyrebase.initialize_app(firebaseConfig)
 auth=firebase.auth()
 database=firebase.database()
 
+
+flag = False
+
 class InfoScreen(QMainWindow):
     def __init__(self):
         super(InfoScreen,self).__init__()
@@ -66,10 +69,10 @@ class InfoScreen(QMainWindow):
         self. timer.start(1000) 
         self.showTime()
         self.show()
+
         self.picam2 = Picamera2()
         self.picam2.start_preview(Preview.QTGL)
         self.picam2.configure(preview_config)
-
         ########## Parking Mode ##########
         self.ParkingButton.clicked.connect(self.gotoParkingMode)
 
@@ -83,27 +86,39 @@ class InfoScreen(QMainWindow):
         self.lcd.display(formatted_time)
 
     def gotoParkingMode(self):
-        data = self.checkUARTData()
-        if data:
+        #data = self.checkUARTData()
+        if self.checkUARTData():
+            print("helllooooo")
             ultrasonic_reading = self.getUltrasonicReading()
             print("Ultrasonic Reading:", ultrasonic_reading)
             if ultrasonic_reading < 20:
-                QMessageBox.warning(self, "Warning", "Obstacle detected in", ultrasonic_reading ,"cm away!" "Please be cautious.")
+                QMessageBox.warning(self, "Warning", "Obstacle detected! Please be cautious.")
                 GPIO.output(warningLED, GPIO.HIGH)
             else:
                 print("opening camera")
+                    
                 self.picam2.start()
 
         else:
             QMessageBox.warning(self, "NOT FOUND ", "Parking Mode not accessible.")
+            GPIO.output(warningLED, GPIO.LOW)
+        time.sleep(0.01) 
+
     
     def checkUARTData(self):
-        if ser.in_waiting > 0:
+        #if ser.in_waiting > 0:
+           # data = ser.readline().decode().strip()
+          #  return data
+       # else:
+         #   pass
+        while True:
             data = ser.readline().decode().strip()
-            return data
-        else:
-            pass
-        
+            if data:
+                flag = True
+                return flag
+            else:
+                continue 
+            
     def getUltrasonicReading(self):
         # Set trigger to HIGH
         GPIO.output(TRIG_PIN, True)
