@@ -45,6 +45,9 @@ To set up and deploy the Over-The-Air Programmer (OTA) system, follow these step
    - Access the Raspberry Pi 4 GUI interface for user interaction.
    - Use the "Check for Updates" feature to fetch and install the latest firmware updates.
 
+## Flowchart
+![FOTA_Flowchart](https://github.com/Tasneem-Mansour/FOTA_Project/assets/114835445/54b64d76-849c-4108-992c-6b1ad307b2d8)
+
 Acknowledgments
 Special thanks to the contributors and supporters of this project in IMT/WazeefaTech who have helped in its development and improvement.
 _______________________________________________________________________________________________
