@@ -1,20 +1,34 @@
 import sys
 import random
-import pyrebase
+
 
 import RPi.GPIO as GPIO
 import serial
 import time
-
+import pyrebase
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QMainWindow, QDialog, QApplication, QMessageBox, QLCDNumber, QWidget, QVBoxLayout, QLabel
 from PyQt5.QtGui import QDesktopServices, QFont
 from PyQt5.QtCore import QUrl, QTimer, QTime, Qt
 from PyQt5.uic import loadUi
 from datetime import datetime
-from picamera2 import Picamera2, Preview
 
+######################################################################################
+firebaseConfig = {
+  'apiKey': "AIzaSyCdpuLA18tyrXDbLyhiVD3HPrZMa46Ihss",
+  'authDomain': "fir-led-sing-be438.firebaseapp.com",
+  'projectId': "fir-led-sing-be438",
+  'storageBucket': "fir-led-sing-be438.appspot.com",
+  'messagingSenderId': "908349557819",
+  'appId': "1:908349557819:web:664cf0280268954817e01e",
+  'measurementId': "G-KDF9C42H79"
+}
 
+firebase=pyrebase.initialize_app(firebaseConfig)
+auth=firebase.auth()
+database=firebase.database()
+data={"update_flag": 0}
+database.child("flags").set(data)
 # Serial port configuration
 serial_port = '/dev/ttyAMA0'  # Adjust this according to your USB to TTL module
 baud_rate = 9600
@@ -39,24 +53,10 @@ GPIO.setup(TRIG_PIN, GPIO.OUT)
 GPIO.setup(ECHO_PIN, GPIO.IN)
 GPIO.setup(warningLED, GPIO.OUT)
 
-######################################################################################
-firebaseConfig = {
-  'apiKey': "AIzaSyA3HzDdr3tIjrK1E0GV2HfLO4-bdmSH0qY",
-  'authDomain': "fota-project-wazzefa-tech.firebaseapp.com",
-  'databaseURL': "https://fota-project-wazzefa-tech-default-rtdb.firebaseio.com",
-  'projectId': "fota-project-wazzefa-tech",
-  'storageBucket': "fota-project-wazzefa-tech.appspot.com",
-  'messagingSenderId': "647612809040",
-  'appId': "1:647612809040:web:66e33d30e58275f2f03655",
-  'measurementId': "G-24HK5S75DW"
-}
-
-firebase=pyrebase.initialize_app(firebaseConfig)
-auth=firebase.auth()
-database=firebase.database()
 
 
-flag = False
+
+
 
 class InfoScreen(QMainWindow):
     def __init__(self):
@@ -66,18 +66,21 @@ class InfoScreen(QMainWindow):
         self.lcd = self.findChild(QLCDNumber, "lcdTime")
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.showTime)
-        self. timer.start(1000) 
+        self.timer.start(1000) 
         self.showTime()
         self.show()
 
-        self.picam2 = Picamera2()
-        self.picam2.start_preview(Preview.QTGL)
-        self.picam2.configure(preview_config)
+        
+
         ########## Parking Mode ##########
         self.ParkingButton.clicked.connect(self.gotoParkingMode)
-
+        # Flag to track if ParkingButton was clicked
+        self.parking_button_clicked = False
         ########## System Updates ########
         self.updateButton.clicked.connect(self.gotologin)
+
+
+        
 
     def showTime(self):
         time = datetime.now()
@@ -86,39 +89,53 @@ class InfoScreen(QMainWindow):
         self.lcd.display(formatted_time)
 
     def gotoParkingMode(self):
-        #data = self.checkUARTData()
-        if self.checkUARTData():
-            print("helllooooo")
-            ultrasonic_reading = self.getUltrasonicReading()
-            print("Ultrasonic Reading:", ultrasonic_reading)
-            if ultrasonic_reading < 20:
-                QMessageBox.warning(self, "Warning", "Obstacle detected! Please be cautious.")
-                GPIO.output(warningLED, GPIO.HIGH)
-            else:
-                print("opening camera")
-                    
-                self.picam2.start()
+        self.parking_button_clicked = True
+        update_flag = database.child("flags").child("update_flag").get().val()
+        print("flag Reading:", update_flag)
+        
+        if ((self.parking_button_clicked) and update_flag==0):
+            reply=QMessageBox.warning(self, "NOT FOUND ", "Parking Mode not accessible.")
+            self.parking_button_clicked = False
 
-        else:
-            QMessageBox.warning(self, "NOT FOUND ", "Parking Mode not accessible.")
-            GPIO.output(warningLED, GPIO.LOW)
-        time.sleep(0.01) 
+            if reply == QMessageBox.Close:
+                #widget.setCurrentIndex(widget.currentIndex()) 
 
+                self.returnToHome()
+                return
+        if update_flag:
+            while self.checkUARTData():
+
+                print("helllooooo")
+                ultrasonic_reading = self.getUltrasonicReading()
+                print("Ultrasonic Reading:", ultrasonic_reading)
+                if ultrasonic_reading < 20:
+                    QMessageBox.warning(self, "Warning", "Obstacle detected! Please be cautious.")
+                    GPIO.output(warningLED, GPIO.HIGH)
+                    time.sleep(0.05)
+                    break
+                else:
+                    GPIO.output(warningLED, GPIO.LOW)
+                    time.sleep(0.05)
+                    break
+        self.returnToHome()
+      
     
     def checkUARTData(self):
-        #if ser.in_waiting > 0:
-           # data = ser.readline().decode().strip()
-          #  return data
-       # else:
-         #   pass
         while True:
-            data = ser.readline().decode().strip()
+            data = ser.read(1)
             if data:
-                flag = True
-                return flag
+                data_str = data.decode(errors='ignore')  # Ignore errors in decoding
+                if data_str == 'D':
+                    return True
             else:
-                continue 
-            
+                pass 
+    def returnToHome(self):
+        self.show()
+
+    def closeEvent(self, event):
+        self.returnToHome()
+        event.accept()
+        
     def getUltrasonicReading(self):
         # Set trigger to HIGH
         GPIO.output(TRIG_PIN, True)
@@ -218,9 +235,9 @@ class Update(QDialog):
 
 
     def completeUpdate(self):
+        update_data={"update_flag": 1}
         # Update firebase new code to true
-        database.child("code").update({"new": "true"})
-
+        database.child("flags").update(update_data)
         # Turn off UPDATES by switching to the next page
         noUpdates = NoUpdate()
         widget.addWidget(noUpdates)

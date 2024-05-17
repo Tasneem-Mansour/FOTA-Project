@@ -11,7 +11,7 @@ email_passwords = {}
 class InfoScreen(QMainWindow):
     def __init__(self):
         super(InfoScreen,self).__init__()
-        loadUi("infoScreen.ui",self)
+        loadUi("PyQt/infoScreen.ui",self)
         ########## Time ########
         self.lcd = self.findChild(QLCDNumber, "lcdTime")
         self.timer = QTimer(self)
@@ -43,7 +43,7 @@ class InfoScreen(QMainWindow):
 class Login(QDialog):
     def __init__(self):
         super(Login,self).__init__()
-        loadUi("Login.ui",self)
+        loadUi("PyQt/Login.ui",self)
 
         self.loginButton.clicked.connect(self.loginfunction)
         self.password.setEchoMode(QtWidgets.QLineEdit.Password)
@@ -73,7 +73,7 @@ class Login(QDialog):
 class CreateAcc(QDialog):
     def __init__(self):
         super(CreateAcc,self).__init__()
-        loadUi("CreateAcc.ui",self)
+        loadUi("PyQt/createAcc.ui",self)
         self.signupButton.clicked.connect(self.CreateAccFun)
         self.password.setEchoMode(QtWidgets.QLineEdit.Password)
         self.confirmpass.setEchoMode(QtWidgets.QLineEdit.Password)
